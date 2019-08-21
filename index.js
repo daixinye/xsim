@@ -1,25 +1,28 @@
-const child_process = require('child_process')
-
 const commands = {
+    app: require('./src/app'),
     open: require('./src/open'),
-    upload: require('./src/upload')
+    media: require('./src/media')
 }
 
-function exec(command){
-    console.log(`执行命令：${command}`)
-    child_process.execSync(command)
+const alias = {
+    a: commands.app,
+    o: commands.open,
+    m: commands.media
 }
 
 module.exports = function (argvs) {
     const command = argvs.shift()
+
     try {
-        if(command in commands){
-            exec(commands[command](argvs))
-        }else{
-            throw Error('没有此子命令')
+        if (command in commands) {
+            commands[command].call(null, argvs)
+        } else if (command in alias) {
+            alias[command].call(null, argvs)
+        } else {
+            throw Error(`命令不存在： xsim ${command}`)
         }
-    }catch(e){
-        console.log(`error: ${e.message}`)
+    } catch (e) {
+        console.log(e)
     }
-    
+
 }
